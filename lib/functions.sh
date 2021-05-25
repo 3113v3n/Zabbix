@@ -137,7 +137,7 @@ done
 
 confirmPass(){
 	PASS=$1
-	COMFIRM_PASS=$2
+	CONFIRM_PASS=$2
 	while true; do
 
 		if [[  ${PASS} != ${CONFIRM_PASS} ]];then
@@ -147,16 +147,17 @@ confirmPass(){
 		fi
 	done
 }
+
 usage(){
 	echo -e "
-	Usage: ${O}./$1 [-i  ] | [ -h ]  ${RESET}
+	Usage: ${O}./$1 [-i  ] | [ -h ] | [-O ] ${RESET}
 
 
 	OPTIONS:
 	========
 	    -i    Start Installation Process
 	    -h    Help Function
-
+	    -O    Optimize Installation [optional], should be done after ${BGreen}INSTALLATION is Complete${normal_color}
 
 	EXAMPLE:
 	=========
