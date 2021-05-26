@@ -150,19 +150,23 @@ confirmPass(){
 
 usage(){
 	echo -e "
-	Usage: ${O}./$1 [-i  ] | [ -h ] | [-O ] ${RESET}
+	Usage: ${O}./$1 [-i  ] | [ -h ] | [ -O ] | [ -U ]${RESET}
 
 
 	OPTIONS:
 	========
-	    -i    Start Installation Process
-	    -h    Help Function
-	    -O    Optimize Installation [optional], should be done after ${BGreen}INSTALLATION is Complete${normal_color}
+	    ${BGreen}-U${normal_color}    uninstall zabbix
+	    ${BGreen}-i${normal_color}    Start Installation Process
+	    ${BGreen}-h${normal_color}    Help Function
+	    ${BGreen}-O${normal_color}    Optimize Installation [optional],
+		 should be done after ${BGreen}INSTALLATION is Complete${normal_color}
+
+
 
 	EXAMPLE:
 	=========
-		${O}./$1 -h
-${RESET}
+		${O}./$1 -i ${RESET}(To Run an Install)
+
 	"
 }
 mysql_import_function(){

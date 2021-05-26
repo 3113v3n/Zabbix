@@ -7,4 +7,6 @@ This Repository contains scripts to help in **Automation** of Zabbix installatio
 
 
     USAGE:
-      ./Zabbix_install.sh
+      chmod +x Zabbix_install.sh
+
+      ./Zabbix_install.sh -h [ to get more available options ]

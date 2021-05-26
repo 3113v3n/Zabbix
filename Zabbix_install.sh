@@ -1,7 +1,7 @@
 #!/bin/bash
 ######################################################################################################
 ### Author: Sidney Omondi
-### Version: v1.3.0
+### Version: v1.4.0
 ### Date: 2021-5-24 [YYY-MM-DD]
 ### Description:
 ###           Script aims to automate installation of Zabbix on CentOS
@@ -18,11 +18,13 @@ ip_addr=$(ifconfig | grep "inet" | grep "broadcast" | awk '{print $2}') #get IP 
 function check(){
   local OPTIND opt i
     no_args="true"
-      while getopts "ihO" opt; do
+      while getopts "ihOU" opt; do
       case "$opt" in
         i) animate_banner && installation_function
         ;;
         O) optimization_function
+        ;;
+        U)uninstall_zabbix
         ;;
         h) usage $filename
         exit 0
@@ -59,7 +61,7 @@ install_DB(){
 returnConfirmedPassword(){
 	while true;do
 		 stty -echo
-		read -p "Enter a password for your zabbix user [zabbix] : "  zabbixDBpass
+		read -p "Enter a password for your zabbix user ${read_blue_color}[zabbix]${read_normal_color} : "  zabbixDBpass
 		echo
 		read -p "Confirm Entered Password " Confirm
 		echo
@@ -80,7 +82,13 @@ returnConfirmedPassword(){
 
 # b) change root password
 change_MYSQ_rootPWD(){
-  mysql_secure_installation #run as final stage
+  check_yes_no "Do You wish to change MYSQL root Password? [yes | no ] "
+  local response=$?
+  if [[ "$response" -eq 0 ]];then
+    mysql_secure_installation #run as final stage
+  else
+    exit 0
+  fi
 }
 
 # c) Create database
@@ -89,7 +97,7 @@ configure_mysql_db(){
   sudo mysql  --execute="
   CREATE DATABASE zabbix character set utf8 collate utf8_bin;
   grant all privileges on zabbix.* to zabbix@localhost identified by '${zabbixDBpass}';
-  USE zabbix
+  USE zabbix;
   SET global innodb_strict_mode='OFF';
   "
 }
@@ -248,5 +256,27 @@ optimization_function(){
   sudo systemctl start mysql
   sudo systemctl start zabbix-server
 
+}
+uninstall_zabbix(){
+  sudo systemctl stop zabbix-server
+  sudo yum remove zabbix zabbix-release zabbix-server zabbix-server-mysql zabbix-web zabbix-web-mysql onapp-zabbix
+  sudo rm /etc/httpd/conf.d/onapp-zabbix.conf #/etc/httpd/conf.d/onapp-zabbix.conf.rpmsave
+
+ service httpd restart
+ check_yes_no "Did you change MYSQL Root Password ? [ Y|N ]"
+ local answer=$?
+ if [[ "$answer" -eq 1 ]]
+ then
+   sudo mysql --execute="DROP DATABASE zabbix;
+  DROP user 'zabbix'@'localhost';
+   "
+ else
+   read -p "Enter your Mysql ${read_green_color}root${read_normal_color} Password " password
+   mysql -u root -p$password --execute="DROP DATABASE zabbix;
+  DROP user 'zabbix'@'localhost';
+   "
+ fi
+ sudo rm -rf /etc/zabbix/ #/etc/zabbix/web/zabbix.conf.php.rpmsave
+ sudo rm /etc/init.d/zabbix*
 }
 check $@
